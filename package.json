@@ -1,0 +1,19 @@
+{
+    "name": "autoscaler-project",
+    "version": "1.0.0",
+    "description": "AI-Driven Auto-Scaler System - Final Year Project",
+    "scripts": {
+        "install-all": "cd backend && npm install && cd ../frontend && npm install && cd ../ml-service && pip install -r requirements.txt",
+        "dev": "concurrently \"npm run backend\" \"npm run ml\" \"npm run frontend\"",
+        "backend": "cd backend && npm run dev",
+        "ml": "cd ml-service && python app.py",
+        "frontend": "cd frontend && npm start"
+    },
+    "keywords": [
+        "autoscaling",
+        "ml",
+        "mern"
+    ],
+    "author": "",
+    "license": "MIT"
+}

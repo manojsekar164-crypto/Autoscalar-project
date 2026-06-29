@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: frontend-deployment
+  namespace: ai-autoscaler
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: frontend
+
+  template:
+    metadata:
+      labels:
+        app: frontend
+
+    spec:
+      containers:
+        - name: frontend
+          image: manojs0723/project6-frontend:latest
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 3000

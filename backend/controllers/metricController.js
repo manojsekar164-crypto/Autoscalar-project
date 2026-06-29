@@ -142,12 +142,17 @@ exports.getScalingDecision = async (req, res) => {
             predicted_load: predictedLoad,
             decision
         });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
+    } } catch (error) {
+    console.error("===== SAVE METRIC ERROR =====");
+    console.error(error);
+    console.error("Error message:", error.message);
+    console.error("Error code:", error.code);
+    console.error("Stack:", error.stack);
+
+    res.status(500).json({
+        success: false,
+        error: error.message
+    });
 };
 
 // Mock AWS Auto-Scaling Functions

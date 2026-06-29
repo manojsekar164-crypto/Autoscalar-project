@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Dashboard from './components/Dashboard';
 import './App.css';
 
-const API_URL = 'http://localhost:4000/api';
+// API URL from environment variable
+// Fallback to localhost for local development
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
 
 function App() {
     const [scalingData, setScalingData] = useState(null);
@@ -13,73 +15,78 @@ function App() {
     const [error, setError] = useState(null);
     const [isRunning, setIsRunning] = useState(true);
 
-    // Fetch scaling decision
-    const fetchScalingData = async () => {
+    const fetchScalingData = useCallback(async () => {
         if (!isRunning) return;
 
         try {
             const response = await axios.get(`${API_URL}/scale`);
+
             if (response.data.success) {
                 setScalingData(response.data);
 
-                // Add to logs
                 const logEntry = {
                     time: new Date().toLocaleTimeString(),
                     currentLoad: response.data.current_load,
                     predictedLoad: response.data.predicted_load,
                     decision: response.data.decision
                 };
-                setLogs(prev => [...prev.slice(-19), logEntry]); // Keep last 20 logs
+
+                setLogs(prev => [...prev.slice(-19), logEntry]);
 
                 setError(null);
             }
         } catch (err) {
-            setError('Failed to fetch scaling data');
-            console.error('Error:', err);
+            console.error(err);
+            setError("Failed to fetch scaling data");
         }
-    };
+    }, [isRunning]);
 
-    // Fetch metrics history
-    const fetchMetrics = async () => {
+    const fetchMetrics = useCallback(async () => {
         try {
             const response = await axios.get(`${API_URL}/metrics?limit=20`);
+
             if (response.data.success) {
                 setMetrics(response.data.data);
-                setLoading(false);
             }
+
+            setLoading(false);
+
         } catch (err) {
-            setError('Failed to fetch metrics');
-            console.error('Error:', err);
+            console.error(err);
+            setError("Failed to fetch metrics");
             setLoading(false);
         }
-    };
+    }, []);
 
-    // Initial fetch
     useEffect(() => {
         fetchScalingData();
         fetchMetrics();
-    }, []);
+    }, [fetchScalingData, fetchMetrics]);
 
-    // Start/Stop simulation
     const toggleSimulation = async () => {
         try {
-            const endpoint = isRunning ? '/stop' : '/start';
+            const endpoint = isRunning ? "/stop" : "/start";
+
             await axios.post(`${API_URL}${endpoint}`);
-            setIsRunning(!isRunning);
+
+            setIsRunning(prev => !prev);
+
         } catch (err) {
-            console.error('Error toggling simulation:', err);
+            console.error(err);
         }
     };
 
-    // Auto-refresh every 5 seconds
     useEffect(() => {
+        if (!isRunning) return;
+
         const interval = setInterval(() => {
             fetchScalingData();
             fetchMetrics();
         }, 5000);
 
         return () => clearInterval(interval);
-    }, [isRunning]);
+
+    }, [isRunning, fetchScalingData, fetchMetrics]);
 
     if (loading) {
         return (

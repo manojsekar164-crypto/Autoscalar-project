@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: ml-service
+  namespace: ai-autoscaler
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: ml-service
+
+  template:
+    metadata:
+      labels:
+        app: ml-service
+
+    spec:
+      containers:
+      - name: ml-service
+        image: manojs0723/project6-ml-service:latest
+
+        imagePullPolicy: Always
+
+        ports:
+        - containerPort: 5000

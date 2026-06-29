@@ -96,6 +96,27 @@ autoscaler-project/
 - `POST /predict` - Predict future load
 
 ---
+## Kubernetes Secrets
+
+Before deploying, create the required secrets.
+
+### MongoDB Secret
+
+```bash
+kubectl create secret generic mongodb-secret \
+  --from-literal=MONGO_INITDB_ROOT_USERNAME=<username> \
+  --from-literal=MONGO_INITDB_ROOT_PASSWORD=<password> \
+  -n ai-autoscaler
+```
+
+### Backend Secret
+
+```bash
+kubectl create secret generic backend-secret \
+  --from-literal=MONGODB_URI="mongodb://<username>:<password>@mongodb:27017/autoscaler?authSource=admin" \
+  --from-literal=ML_SERVICE_URL="http://ml-service:5000" \
+  -n ai-autoscaler
+```
 
 ## How It Works
 1. Backend generates CPU load every 5 seconds
